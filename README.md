@@ -12,7 +12,7 @@ This project demonstrates how to combine Postman and Hugging Face's `facebook/ba
 4. **Send to Hugging Face** → AI returns a readable summary
 
 > Example Output:
-> _"Price changed from 9.99 to 9.991. Rating increased. Stock was removed."_
+> "Price changed from 9.99 to 9.991. Rating increased. Stock was removed."
 
 ## Includes
 - Postman
