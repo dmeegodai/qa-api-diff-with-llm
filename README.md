@@ -11,8 +11,8 @@ This project demonstrates how to combine Postman and Hugging Face's `facebook/ba
 3. **Compare Responses** → Generates `response_diff` + `response_diff_summary`
 4. **Send to Hugging Face** → AI returns a readable summary
 
-> Example Output:
-> "Price changed from 9.99 to 9.991. Rating increased. Stock was removed."
+# Example Output:
+"Price changed from 9.99 to 9.991. Rating increased. Stock was removed."
 
 ## Includes
 - Postman
