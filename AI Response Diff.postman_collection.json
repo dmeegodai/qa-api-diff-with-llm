@@ -1,0 +1,307 @@
+{
+	"info": {
+		"_postman_id": "a9b51b40-916d-4350-96b5-147382fc5d4b",
+		"name": "AI Response Diff",
+		"description": "### AI Response Diff – Smart API Comparison via Hugging Face\n\nThis collection enables automated comparison of API responses using AI. It fetches the original response, updates it via a `PUT` request, and then sends both versions to a Hugging Face summarization model to get a natural-language diff of the changes.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37896799"
+	},
+	"item": [
+		{
+			"name": "Get Product – Baseline",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let baselineResponse =  pm.response.json();\r",
+							"\r",
+							"pm.collectionVariables.set(\"baseline_response\", JSON.stringify(baselineResponse));\r",
+							"console.log(\"Baeline response saved\", baselineResponse);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dummyjson.com/products/1",
+					"protocol": "https",
+					"host": [
+						"dummyjson",
+						"com"
+					],
+					"path": [
+						"products",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Updated Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let updatedResponse = {\r",
+							"    id: 1,\r",
+							"    title: \"Essence Mascara Lash Princess\",\r",
+							"    description: \"NEW: Updated formula with long-lasting lift and shine!\",\r",
+							"    category: \"beauty\",\r",
+							"    price: 9.991,\r",
+							"    discountPercentage: 10.38,\r",
+							"    rating: 3.5\r",
+							"}\r",
+							"\r",
+							"pm.collectionVariables.set(\"updatedResponse\", JSON.stringify(updatedResponse));\r",
+							"console.log(\"Updated response saved to collection variables.\");"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dummyjson.com/products/1",
+					"protocol": "https",
+					"host": [
+						"dummyjson",
+						"com"
+					],
+					"path": [
+						"products",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Compare Product Responses",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let baselineRaw =  pm.collectionVariables.get(\"baseline_response\");\r",
+							"let updatedRaw = pm.collectionVariables.get(\"updatedResponse\");\r",
+							"\r",
+							"if(!baselineRaw || !updatedRaw) {\r",
+							"    console.log(\"Both Baseline and Updated responses must be set.\");\r",
+							"}\r",
+							"function deepDiff(obj1, obj2) {\r",
+							"    const changes = {};\r",
+							"    const keys = new Set([...Object.keys(obj1), ...Object.keys(obj2)]);\r",
+							"\r",
+							"    for (const key of keys) {\r",
+							"        if (JSON.stringify(obj1[key]) !== JSON.stringify(obj2[key])) {\r",
+							"            changes[key] = {\r",
+							"                baseline: obj1[key],\r",
+							"                updated: obj2[key]\r",
+							"            };\r",
+							"        }\r",
+							"    }\r",
+							"    return changes;\r",
+							"}\r",
+							"\r",
+							"let baseline = JSON.parse(baselineRaw);\r",
+							"let updated = JSON.parse(updatedRaw);\r",
+							"\r",
+							"let diff = deepDiff(baseline, updated);\r",
+							"pm.collectionVariables.set(\"response_diff\", JSON.stringify(diff));\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://postman-echo.com/get",
+					"protocol": "https",
+					"host": [
+						"postman-echo",
+						"com"
+					],
+					"path": [
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Hugging Face Request",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let baselineRaw =  pm.collectionVariables.get(\"baseline_response\");\r",
+							"let updatedRaw = pm.collectionVariables.get(\"updatedResponse\");\r",
+							"\r",
+							"function deepDiff(obj1, obj2) {\r",
+							"    const changes = {};\r",
+							"    const keys = new Set([...Object.keys(obj1), ...Object.keys(obj2)]);\r",
+							"\r",
+							"    for (const key of keys) {\r",
+							"        if (JSON.stringify(obj1[key]) !== JSON.stringify(obj2[key])) {\r",
+							"            changes[key] = {\r",
+							"                baseline: obj1[key],\r",
+							"                updated: obj2[key]\r",
+							"            };\r",
+							"        }\r",
+							"    }\r",
+							"    return changes;\r",
+							"}\r",
+							"if(!baselineRaw || !updatedRaw) {\r",
+							"    console.log(\"Both Baseline and Updated responses must be set.\");\r",
+							"} else {\r",
+							"    let baseline = JSON.parse(baselineRaw);\r",
+							"    let updated = JSON.parse(updatedRaw);\r",
+							"    let diff = deepDiff(baseline, updated);\r",
+							"    pm.collectionVariables.set(\"response_diff\", JSON.stringify(diff. null, 2));\r",
+							"\r",
+							"    let summary = [];\r",
+							"\r",
+							"    Object.entries(diff).forEach(([key, value]) => {\r",
+							"        if (value.baseline !== undefined && value.updated !== undefined) {\r",
+							"            summary.push(`${key} changed from \"${value.baseline}\" to \"${value.updated}\"`);\r",
+							"        } else if (value.baseline && !value.updated) {\r",
+							"            summary.push(`${key} was removed (was \"${value.baseline}\")`);\r",
+							"        } else if (!value.baseline && value.updated) {\r",
+							"            summary.push(`${key} was added with value \"${value.updated}\"`);\r",
+							"        }\r",
+							"    });\r",
+							"\r",
+							"    const readableSummary = summary.join('. ').replace(/\"/g, \"'\") + '.';\r",
+							"    pm.collectionVariables.set(\"response_diff_summary\", readableSummary);\r",
+							"\r",
+							"}\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"inputs\": \"{{response_diff_summary}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+					"protocol": "https",
+					"host": [
+						"api-inference",
+						"huggingface",
+						"co"
+					],
+					"path": [
+						"models",
+						"facebook",
+						"bart-large-cnn"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{HUGGINGFACE_API_KEY}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "HUGGINGFACE_API_KEY",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "baseline_response",
+			"value": ""
+		},
+		{
+			"key": "updatedResponse",
+			"value": ""
+		},
+		{
+			"key": "response_diff",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "response_diff_summary",
+			"value": ""
+		}
+	]
+}
